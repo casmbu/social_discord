@@ -1,0 +1,22 @@
+{
+    "name": "drupal/social_discord",
+    "type": "drupal-module",
+    "description": "Social Auth integration for Discord.",
+    "keywords": ["Drupal"],
+    "license": "GPL-2.0+",
+    "homepage": "https://www.drupal.org/project/social_discord",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/social_discord",
+        "source": "http://cgit.drupalcode.org/social_discord"
+    },
+    "require": {
+        "wohali/oauth2-discord": "^2.0"
+    },
+    "authors": [
+        {
+            "name": "Tyson Gray (casmbu)",
+            "email": "grayt1988@gmail.com"
+        }
+    ]
+}

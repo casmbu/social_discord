@@ -1,0 +1,13 @@
+services:
+  social_discord.manager:
+    class: Drupal\social_discord\DiscordAuthManager
+    arguments:
+      - '@config.factory'
+  social_discord.event_subscriber:
+    class: Drupal\social_discord\EventSubscriber\DiscordSubscriber
+    arguments:
+      - '@social_auth.data_handler'
+      - '@plugin.network.manager'
+      - '@social_discord.manager'
+    tags:
+      - { name: 'event_subscriber' }

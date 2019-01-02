@@ -1,0 +1,27 @@
+social_discord.redirect_to_discord:
+  path: 'user/login/discord'
+  defaults:
+    _controller: '\Drupal\social_discord\Controller\DiscordController::redirectToDiscord'
+  requirements:
+    # Don't allow users already logged in with Discord to log in again.
+    _custom_access: '\Drupal\social_discord\Controller\DiscordController::accessRedirect'
+  options:
+    no_cache: TRUE
+
+social_discord.callback:
+  path: 'user/login/discord/callback'
+  defaults:
+    _controller: '\Drupal\social_discord\Controller\DiscordController::callback'
+  requirements:
+    # Anonymous users can log in, but authenticated users can also associate a new provider.
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+social_discord.settings_form:
+  path: 'admin/config/social-api/social-auth/discord'
+  defaults:
+    _title: 'Social Discord settings'
+    _form: '\Drupal\social_discord\Form\DiscordSettingsForm'
+  requirements:
+    _permission: 'administer social api authentication'

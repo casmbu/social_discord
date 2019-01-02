@@ -1,0 +1,4 @@
+social_discord.settings.tab:
+  title: 'Discord'
+  route_name: social_discord.settings_form
+  base_route: social_auth.integrations

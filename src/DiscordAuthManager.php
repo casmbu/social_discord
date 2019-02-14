@@ -68,10 +68,10 @@ class DiscordAuthManager extends OAuth2Manager {
   /**
    * {@inheritdoc}
    */
-  public function requestEndPoint($path) {
+  public function requestEndPoint($method, $path, $domain = NULL, array $options = []) {
     $url = $this->client->apiDomain . $path;
 
-    $request = $this->client->getAuthenticatedRequest('GET', $url, $this->getAccessToken());
+    $request = $this->client->getAuthenticatedRequest($method, $url, $this->getAccessToken(), $options);
 
     $response = $this->client->getResponse($request);
 

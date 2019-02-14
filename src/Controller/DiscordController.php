@@ -7,7 +7,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\social_api\Plugin\NetworkManager;
 use Drupal\social_discord\DiscordAuthManager;
-use Drupal\social_auth\SocialAuthUserManager;
+use Drupal\social_auth\SocialAuthUserAuthenticator;
 use Drupal\social_auth\SocialAuthDataHandler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Routing\TrustedRedirectResponse;
@@ -28,7 +28,7 @@ class DiscordController extends ControllerBase {
   /**
    * The user manager.
    *
-   * @var \Drupal\social_auth\SocialAuthUserManager
+   * @var \Drupal\social_auth\SocialAuthUserAuthenticator
    */
   private $userManager;
 
@@ -59,7 +59,7 @@ class DiscordController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('plugin.network.manager'),
-      $container->get('social_auth.user_manager'),
+      $container->get('social_auth.user_authenticator'),
       $container->get('social_discord.manager'),
       $container->get('request_stack'),
       $container->get('social_auth.data_handler')
@@ -71,7 +71,7 @@ class DiscordController extends ControllerBase {
    *
    * @param \Drupal\social_api\Plugin\NetworkManager $network_manager
    *   Used to get an instance of social_discord network plugin.
-   * @param \Drupal\social_auth\SocialAuthUserManager $user_manager
+   * @param \Drupal\social_auth\SocialAuthUserAuthenticator $user_authenticator
    *   Manages user login/registration.
    * @param \Drupal\social_discord\DiscordAuthManager $discord_auth_manager
    *   Used to manage authentication methods.
@@ -81,13 +81,13 @@ class DiscordController extends ControllerBase {
    *   SocialAuthDataHandler object.
    */
   public function __construct(NetworkManager $network_manager,
-                              SocialAuthUserManager $user_manager,
+                              SocialAuthUserAuthenticator $user_authenticator,
                               DiscordAuthManager $discord_auth_manager,
                               RequestStack $request,
                               SocialAuthDataHandler $data_handler) {
 
     $this->networkManager = $network_manager;
-    $this->userManager = $user_manager;
+    $this->userManager = $user_authenticator;
     $this->authManager = $discord_auth_manager;
     $this->request = $request;
     $this->dataHandler = $data_handler;

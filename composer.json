@@ -4,14 +4,16 @@
     "description": "Social Auth integration for Discord.",
     "keywords": ["Drupal"],
     "license": "GPL-2.0+",
-    "homepage": "https://www.drupal.org/project/social_discord",
+    "homepage": "https://github.com/casmbu/social_discord",
     "minimum-stability": "dev",
     "support": {
-        "issues": "https://www.drupal.org/project/issues/social_discord",
-        "source": "http://cgit.drupalcode.org/social_discord"
+        "issues": "https://github.com/casmbu/social_discord/issues",
+        "source": "https://github.com/casmbu/social_discord"
     },
     "require": {
-        "wohali/oauth2-discord": "^2.0"
+        "wohali/oauth2-discord-new": "^1.0.0",
+        "drupal/social-api": "2.0-beta5",
+        "drupal/social-auth": "2.0-beta5"
     },
     "authors": [
         {

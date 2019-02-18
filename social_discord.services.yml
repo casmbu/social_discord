@@ -3,6 +3,7 @@ services:
     class: Drupal\social_discord\DiscordAuthManager
     arguments:
       - '@config.factory'
+      - '@logger.factory'
   social_discord.event_subscriber:
     class: Drupal\social_discord\EventSubscriber\DiscordSubscriber
     arguments:

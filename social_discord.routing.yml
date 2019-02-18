@@ -1,7 +1,7 @@
 social_discord.redirect_to_discord:
   path: 'user/login/discord'
   defaults:
-    _controller: '\Drupal\social_discord\Controller\DiscordController::redirectToDiscord'
+    _controller: '\Drupal\social_discord\Controller\DiscordController::redirectToProvider'
   requirements:
     # Don't allow users already logged in with Discord to log in again.
     _custom_access: '\Drupal\social_discord\Controller\DiscordController::accessRedirect'

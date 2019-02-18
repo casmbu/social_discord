@@ -31,7 +31,7 @@ This module requires the following modules:
 INSTALLATION
 ------------
 
- * Install the dependencies: Social API and Social Auth.
+ * Install the dependencies: Social API and Social Auth. Currently version 2.0-beta5
 
  * Install as you would normally install a contributed Drupal module. See:
    https://drupal.org/documentation/install/modules-themes/modules-8

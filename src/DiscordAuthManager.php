@@ -53,9 +53,9 @@ class DiscordAuthManager extends OAuth2Manager
     /**
      * {@inheritdoc}
      */
-    public function getExtraDetails()
+    public function getExtraDetails($method = 'GET', $domain = NULL)
     {
-		$extra_details = json_decode($this->parent::getExtraDetails());
+		$extra_details = json_decode($this->parent::getExtraDetails($method, $domain));
 		$extra_details['refresh_token'] = $this->refreshToken;
         return json_encode($extra_details);
     }

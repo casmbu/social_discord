@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\social_discord\Plugin\QueueWorker\SocialDiscordQueue.
+ * Contains \Drupal\social_discord\Plugin\QueueWorker\SocialDiscordWorker.
  */
 
 namespace Drupal\social_discord\Plugin\QueueWorker;
@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use \RestCord\DiscordClient;
 
 /**
- * Processes Tasks for SocialDiscordQueue.
+ * Processes Tasks for SocialDiscordWorker.
  *
  * @QueueWorker(
  *   id = "social_discord_queue",
@@ -21,7 +21,7 @@ use \RestCord\DiscordClient;
  *   cron = {"time" = 86400}
  * )
  */
-class EmailQueue extends QueueWorkerBase implements ContainerFactoryPluginInterface
+class SocialDiscordWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface
 {
     /**
      * The Social API Network Manager.
@@ -53,7 +53,7 @@ class EmailQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
     /**
      * {@inheritdoc}
      */
-    public static function create(ContainerInterface $container)
+    public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition)
     {
         return new static(
             $container->get('plugin.network.manager')
@@ -71,38 +71,58 @@ class EmailQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
         $user_storage = $this->entityTypeManager->getStorage('user');
 
         // Get SDK.
-        $client = $this->networkManager->createInstance('social_discord')->getSdk();
+        $wohali_client = $this->networkManager->createInstance('social_discord')->getSdk();
 
         // Get settings.
         $config = \Drupal::configFactory()->get('social_discord.settings');
-        $guildId = $config->get('guild_id');
-        $botToken = $config->get('bot_token');
-        $addRoles = $config->get('add_roles');
+        $guild_id = $config->get('guild_id');
+        $bot_token = $config->get('bot_token');
+        $add_roles = $config->get('add_roles');
+
+        $restcord_client = new \RestCord\DiscordClient(['token' => $bot_token]);
+
+        $members = (object) [];
+        $largest_user_id = 0;
+        $count = 1000;
+        while ($count >= 1000) {
+            $page_members = $restcord_client->guild->listGuildMembers([
+                'guild.id' => (int) $guild_id,
+                'limit' => 1000,
+                'after' => $largest_user_id,
+            ]);
+            $count = 0;
+            foreach ($page_members as $member) {
+                $guild_user_id = $member->user->id;
+                $members->{$guild_user_id} = true;
+                if ($guild_user_id > $largest_user_id) {
+                    $largest_user_id = $guild_user_id;
+                }
+                $count = $count + 1;
+            }
+        }
 
         foreach ($authorized_users as $authorized_user) {
-            $additional_data = decode_json($authorized_user->getAdditionalData());
-            $newAccessToken = $client->getAccessToken('refresh_token', [
-                'refresh_token' => $additional_data['refresh_token'],
-            ]);
+            $additional_data = (object) json_decode($authorized_user->getAdditionalData());
+            $new_access_token = false;
+            if (isset($additional_data->refresh_token)) {
+                $new_access_token = $wohali_client->getAccessToken('refresh_token', [
+                    'refresh_token' => $additional_data->refresh_token,
+                ]);
 
-            $authorized_user->setAccessToken($newAccessToken->getToken());
-            $additional_data['refresh_token'] = $newAccessToken->getRefreshToken();
-            $authorized_user->setAdditionalData(encode_json($additional_data));
+                $authorized_user->setToken($new_access_token->getToken());
+                $additional_data->refresh_token = $new_access_token->getRefreshToken();
+                $authorized_user->setAdditionalData(json_encode($additional_data));
 
-            $authorized_user->save();
+                $authorized_user->save();
+            }
 
-            if ($guildId && $addRoles) {
-                $discord = new \RestCord\DiscordClient(['token' => $botToken]);
-                $discord_user = $client->getResourceOwner($newAccessToken);
-
-                $safe = $discord->guild->getGuildMember([
-                    'guild.id' => $guildId,
-                    'user.id' => $discord_user->getId(),
-                ]) || false;
+            if ($guild_id && $add_roles) {
+                $discord_user_id = $authorized_user->get('provider_user_id')->getValue()[0]['value'];
+                $safe = isset($members->{$discord_user_id});
 
                 if (!$safe) {
                     $user = $user_storage->load($authorized_user->getUserId());
-                    foreach ($addRoles as $role) {
+                    foreach ($add_roles as $role) {
                         if ($user->hasRole($role)) {
                             $user->removeRole($role);
                         }

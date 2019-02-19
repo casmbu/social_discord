@@ -36,8 +36,6 @@ function social_discord_cron()
     $next_execution = \Drupal::state()->get('social_discord.next_execution');
     $next_execution = !empty($next_execution) ? $next_execution : 0;
     if (REQUEST_TIME >= $next_execution) {
-        \Drupal::logger('social_discord')->notice('social_discord cron ran');
-
         $queue = \Drupal::queue('social_discord_queue');
         $queue->createQueue();
         $queue->createItem([]);

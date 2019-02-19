@@ -89,7 +89,7 @@ class DiscordSubscriber implements EventSubscriberInterface
 
             // Create client.
             // Can also use $client directly and request data using the library/SDK.
-            $this->providerAuth->setClient($client)->setAccessToken($this->dataHandler->get('access_token'));
+            $this->providerAuth->setClient($client)->setAccessToken($token);
 
             $config = \Drupal::configFactory()->get('social_discord.settings');
 

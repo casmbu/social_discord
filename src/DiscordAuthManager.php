@@ -16,7 +16,7 @@ class DiscordAuthManager extends OAuth2Manager
      *
      * @var string
      */
-	protected $refreshToken;
+    protected $refreshToken;
 
     /**
      * Constructor.
@@ -36,9 +36,20 @@ class DiscordAuthManager extends OAuth2Manager
      */
     public function authenticate()
     {
-		$token = $this->client->getAccessToken('authorization_code', ['code' => $_GET['code']]);
-		$this->setAccessToken($token);
-		$this->refreshToken = $token->getRefreshToken();
+        $token = $this->client->getAccessToken('authorization_code', ['code' => $_GET['code']]);
+        $this->setAccessToken($token);
+        $this->setRefreshToken($token->getRefreshToken());
+    }
+
+    /**
+     * Set the refresh token.
+     *
+     * @param string $refresh_token
+     *   The token to set.
+     */
+    public function setRefreshToken($refresh_token)
+    {
+        $this->refreshToken = $refresh_token;
     }
 
     /**
@@ -48,15 +59,15 @@ class DiscordAuthManager extends OAuth2Manager
     {
         $this->user = $this->client->getResourceOwner($this->getAccessToken());
         return $this->user;
-	}
-	
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function getExtraDetails($method = 'GET', $domain = NULL)
+    public function getExtraDetails($method = 'GET', $domain = null)
     {
-		$extra_details = json_decode($this->parent::getExtraDetails($method, $domain));
-		$extra_details['refresh_token'] = $this->refreshToken;
+        $extra_details = json_decode(parent::getExtraDetails($method, $domain));
+        $extra_details['refresh_token'] = $this->refreshToken;
         return json_encode($extra_details);
     }
 

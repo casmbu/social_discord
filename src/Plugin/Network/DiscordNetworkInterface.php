@@ -7,4 +7,5 @@ use Drupal\social_api\Plugin\NetworkInterface;
 /**
  * Defines the Discord Auth interface.
  */
-interface DiscordNetworkInterface extends NetworkInterface {}
+interface DiscordNetworkInterface extends NetworkInterface
+{}

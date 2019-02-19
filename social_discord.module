@@ -10,25 +10,39 @@ use Drupal\Core\Routing\RouteMatchInterface;
 /**
  * Implements hook_help().
  */
-function social_discord_help($route_name, RouteMatchInterface $route_match) {
-  $output = '';
+function social_discord_help($route_name, RouteMatchInterface $route_match)
+{
+    $output = '';
 
-  switch ($route_name) {
-    case 'social_discord.settings_form':
-      $output = '<h3>' . t('Configuration instructions') . '</h3>';
-      $output .= '<p>';
-      $output .= t('Configuration instructions and other useful documentation can be found from <a href="@handbook-url">Social Discord Handbook</a>.', ['@handbook-url' => 'https://www.drupal.org/node/2936957']);
-      $output .= '</p>';
-      break;
+    switch ($route_name) {
+        case 'social_discord.settings_form':
+            $output = '<h3>' . t('Configuration instructions') . '</h3>';
+            $output .= '<p>';
+            $output .= t('Configuration instructions and other useful documentation can be found from <a href="@handbook-url">Social Discord Handbook</a>.', ['@handbook-url' => 'https://www.drupal.org/node/2936957']);
+            $output .= '</p>';
+            break;
+    }
 
-  }
-
-  return $output;
+    return $output;
 }
 
 /**
  * Implements hook_cron().
  */
-function social_discord_cron() {
+function social_discord_cron()
+{
+    // We usually don't want to act every time cron runs (which could be every
+    // minute) so keep a time for the next run in the site state.
+    $next_execution = \Drupal::state()->get('social_discord.next_execution');
+    $next_execution = !empty($next_execution) ? $next_execution : 0;
+    if (REQUEST_TIME >= $next_execution) {
+        \Drupal::logger('social_discord')->notice('social_discord cron ran');
 
+        $queue = \Drupal::queue('social_discord_queue');
+        $queue->createQueue();
+        $queue->createItem([]);
+
+        // Use a daily interval to run this cron.
+        \Drupal::state()->set('social_discord.next_execution', REQUEST_TIME + 86400);
+    }
 }
